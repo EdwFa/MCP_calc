@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "medical-calculators": {
+      "command": "C:\\Users\\user\\PycharmProjects\\MCP_calc\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "mcp_calc.server"],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
