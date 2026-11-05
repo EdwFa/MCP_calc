@@ -307,7 +307,7 @@ CALCULATORS: tuple[CalculatorSpec, ...] = (
         name="Процент жира в теле (формула ВМС США)",
         summary="Оценка процента всего жира в теле по росту и обхватам шеи, талии и бёдер.",
         formula="%BF = 495 / D − 450, где D зависит от пола, обхватов и роста (log10, сантиметры).",
-        reference="Hodgdon JA, Beckett MB. Naval Health Research Center, 1984: ADA143890 (мужчины), ADA146456 (женщины). Категории: American Council on Exercise.",
+        reference="Hodgdon JA, Beckett MB. Prediction of percent body fat for U.S. Navy men (Report 84-11) and women (Report 84-29) from body circumferences and height. Naval Health Research Center, San Diego, 1984. Категории: American Council on Exercise.",
         methodology=METHODOLOGY["body_fat_navy"],
         inputs=[
             _sex(),
