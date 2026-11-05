@@ -302,6 +302,28 @@ CALCULATORS: tuple[CalculatorSpec, ...] = (
             _sex(),
         ],
     ),
+    CalculatorSpec(
+        id="body_fat_navy",
+        name="Процент жира в теле (формула ВМС США)",
+        summary="Оценка процента всего жира в теле по росту и обхватам шеи, талии и бёдер.",
+        formula="%BF = 495 / D − 450, где D зависит от пола, обхватов и роста (log10, сантиметры).",
+        reference="Hodgdon JA, Beckett MB. Prediction of percent body fat for U.S. Navy men (Report 84-11) and women (Report 84-29) from body circumferences and height. Naval Health Research Center, San Diego, 1984. Категории: American Council on Exercise.",
+        methodology=METHODOLOGY["body_fat_navy"],
+        inputs=[
+            _sex(),
+            InputSpec(name="height_cm", label="Рост", type="number", unit="см",
+                      minimum=100, maximum=250, step=0.5, default=175),
+            InputSpec(name="neck_cm", label="Обхват шеи", type="number", unit="см",
+                      minimum=20, maximum=80, step=0.5, default=38,
+                    help="Сразу под гортанью."),
+            InputSpec(name="waist_cm", label="Обхват талии", type="number", unit="см",
+                      minimum=40, maximum=200, step=0.5, default=85,
+                    help="Мужчины: на уровне пупка. Женщины: в самом узком месте."),
+            InputSpec(name="hip_cm", label="Обхват бёдер", type="number", unit="см",
+                      minimum=50, maximum=200, step=0.5, default=100,
+                    help="Нужен только женщинам, у мужчин не влияет на расчёт."),
+        ],
+    ),
 )
 
 

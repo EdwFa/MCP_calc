@@ -160,6 +160,29 @@ def qtc(
     return _result("qtc", {"qt_ms": qt_ms, "heart_rate_bpm": heart_rate_bpm, "sex": sex})
 
 
+@_register("body_fat_navy")
+def body_fat_navy(
+    sex: Annotated[Sex, Field(description="Пол: male или female")],
+    height_cm: Annotated[float, Field(description="Рост, см")],
+    neck_cm: Annotated[float, Field(description="Обхват шеи, см")],
+    waist_cm: Annotated[float, Field(description="Обхват талии, см")],
+    hip_cm: Annotated[
+        float | None,
+        Field(description="Обхват бёдер, см. Обязателен для женщин, для мужчин не используется"),
+    ] = None,
+) -> CalculatorResult:
+    return _result(
+        "body_fat_navy",
+        {
+            "sex": sex,
+            "height_cm": height_cm,
+            "neck_cm": neck_cm,
+            "waist_cm": waist_cm,
+            "hip_cm": hip_cm,
+        },
+    )
+
+
 def main() -> None:
     mcp.run(transport="stdio")
 

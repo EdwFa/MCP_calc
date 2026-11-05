@@ -297,3 +297,29 @@ def test_invalid_input_is_a_russian_validation_error():
 def test_unknown_calculator():
     with pytest.raises(ValueError, match="Неизвестный калькулятор"):
         run_calculator("apgar", {})
+
+
+def test_body_fat_navy_male_and_female():
+    male = run_calculator(
+        "body_fat_navy",
+        {"sex": "male", "height_cm": 175, "neck_cm": 38, "waist_cm": 85},
+    )
+    female = run_calculator(
+        "body_fat_navy",
+        {"sex": "female", "height_cm": 165, "neck_cm": 33, "waist_cm": 75, "hip_cm": 100},
+    )
+    assert male["value_display"] == "16.9"
+    assert female["value_display"] == "29.4"
+
+
+def test_body_fat_navy_rejects_bad_measurements():
+    with pytest.raises(ValueError, match="бёдер"):
+        run_calculator(
+            "body_fat_navy",
+            {"sex": "female", "height_cm": 165, "neck_cm": 33, "waist_cm": 75},
+        )
+    with pytest.raises(ValueError, match="Талия"):
+        run_calculator(
+            "body_fat_navy",
+            {"sex": "male", "height_cm": 175, "neck_cm": 45, "waist_cm": 45},
+        )
