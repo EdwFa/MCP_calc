@@ -89,12 +89,56 @@ async def get_calculator_schema(tool_id: str, sse_url: str = DEFAULT_SSE_URL) ->
     return await _with_sse_session(_run, sse_url)
 
 
+STRING_PARAM_DEFAULTS: dict[str, str] = {
+    "gender": "male",
+    "sex": "male",
+    "ascites": "none",
+    "lvef": "good",
+    "urgency": "elective",
+    "weight_of_intervention": "isolated_cabg",
+    "pulmonary_hypertension": "none",
+    "product_type": "prbc",
+    "patient_type": "adult",
+    "consistency": "medium",
+    "position": "mid",
+    "injury_type": "blunt",
+    "risk_region": "low",
+    "formula": "mosteller",
+    "drug_name": "acetaminophen",
+    "opioid_name": "morphine_oral",
+    "secretions": "none_light",
+    "chest_xray": "no_infiltrate",
+    "culture_growth": "none_light",
+    "age_group": "adult",
+    "vasopressor_type": "none",
+    "pupillary_reaction": "both_react",
+    "burden_of_illness": "none_mild",
+    "consciousness": "alert",
+    "temperature_category": "normal",
+    "mental_status": "alert",
+}
+
+
+def sanitize_network_calc_params(params: dict[str, Any]) -> dict[str, Any]:
+    """Предотвращает ошибки типов, заменяя числовой 0.0 на корректные строковые enum-значения."""
+    cleaned = dict(params)
+    for k, v in list(cleaned.items()):
+        if k in STRING_PARAM_DEFAULTS and isinstance(v, (int, float)):
+            if v == 0 or v == 0.0:
+                cleaned[k] = STRING_PARAM_DEFAULTS[k]
+            else:
+                cleaned[k] = str(int(v)) if isinstance(v, int) or v == int(v) else str(v)
+    return cleaned
+
+
 async def calculate_network(tool_id: str, params: dict[str, Any], sse_url: str = DEFAULT_SSE_URL) -> dict[str, Any]:
     """Выполняет медицинский расчёт через сетевой MCP-сервер."""
     import json
 
+    sanitized_params = sanitize_network_calc_params(params)
+
     async def _run(session: ClientSession):
-        result = await session.call_tool("calculate", {"tool_id": tool_id, "params": params})
+        result = await session.call_tool("calculate", {"tool_id": tool_id, "params": sanitized_params})
         for block in getattr(result, "content", None) or []:
             text = getattr(block, "text", None)
             if text:

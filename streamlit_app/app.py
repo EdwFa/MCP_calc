@@ -92,6 +92,368 @@ def friendly_tool_error(message: str) -> str:
     return message
 
 
+PARAM_ENUM_SPECS: dict[str, dict] = {
+    "gender": {
+        "options": ["male", "female"],
+        "labels": {"male": "Мужской (male)", "female": "Женский (female)"},
+    },
+    "sex": {
+        "options": ["male", "female"],
+        "labels": {"male": "Мужской (male)", "female": "Женский (female)"},
+    },
+    "lvef": {
+        "options": ["good", "moderate", "poor", "very_poor"],
+        "labels": {
+            "good": "Хорошая (>50% / good)",
+            "moderate": "Умеренная (31–50% / moderate)",
+            "poor": "Сниженная (21–30% / poor)",
+            "very_poor": "Резко сниженная (≤20% / very_poor)",
+        },
+    },
+    "urgency": {
+        "options": ["elective", "urgent", "emergency", "salvage"],
+        "labels": {
+            "elective": "Плановая (elective)",
+            "urgent": "Срочная (urgent)",
+            "emergency": "Экстренная (emergency)",
+            "salvage": "Реанимационная (salvage)",
+        },
+    },
+    "weight_of_intervention": {
+        "options": ["isolated_cabg", "single_non_cabg", "two_procedures", "three_or_more"],
+        "labels": {
+            "isolated_cabg": "Изолированное АКШ (isolated CABG)",
+            "single_non_cabg": "Одно не-АКШ вмешательство",
+            "two_procedures": "Два вмешательства",
+            "three_or_more": "Три и более процедур",
+        },
+    },
+    "pulmonary_hypertension": {
+        "options": ["none", "moderate", "severe"],
+        "labels": {
+            "none": "Нет (<31 мм рт. ст.)",
+            "moderate": "Умеренная (31–55 мм рт. ст.)",
+            "severe": "Тяжелая (>55 мм рт. ст.)",
+        },
+    },
+    "nyha_class": {
+        "options": [1, 2, 3, 4],
+        "labels": {
+            1: "I ФК (без ограничений)",
+            2: "II ФК (легкое ограничение)",
+            3: "III ФК (выраженное ограничение)",
+            4: "IV ФК (в покое)",
+        },
+    },
+    "ascites": {
+        "options": ["none", "mild", "moderate_severe"],
+        "labels": {
+            "none": "Отсутствует (none)",
+            "mild": "Небольшой / контролируемый (mild)",
+            "moderate_severe": "Умеренный / напряженный (moderate_severe)",
+        },
+    },
+    "encephalopathy_grade": {
+        "options": [0, 1, 2, 3, 4],
+        "labels": {
+            0: "Нет (стадия 0)",
+            1: "1 степень (легкая спутанность, эйфория)",
+            2: "2 степень (сонливость, дезориентация)",
+            3: "3 степень (сопор, резкая спутанность)",
+            4: "4 степень (печеночная кома)",
+        },
+    },
+    "product_type": {
+        "options": ["prbc", "whole_blood", "platelets", "ffp"],
+        "labels": {
+            "prbc": "Эритроцитарная взвесь (PRBC)",
+            "whole_blood": "Цельная кровь",
+            "platelets": "Тромбоконцентрат",
+            "ffp": "Свежезамороженная плазма (СЗП)",
+        },
+    },
+    "patient_type": {
+        "options": ["adult", "child", "infant", "neonate"],
+        "labels": {
+            "adult": "Взрослый (adult)",
+            "child": "Ребенок (child)",
+            "infant": "Младенец (infant)",
+            "neonate": "Новорожденный (neonate)",
+        },
+    },
+    "consistency": {
+        "options": ["firm", "medium", "soft"],
+        "labels": {
+            "firm": "Плотная (firm)",
+            "medium": "Размягченная (medium)",
+            "soft": "Мягкая (soft)",
+        },
+    },
+    "position": {
+        "options": ["posterior", "mid", "anterior"],
+        "labels": {
+            "posterior": "Кзади (posterior)",
+            "mid": "Срединное (mid)",
+            "anterior": "Кпереди (anterior)",
+        },
+    },
+    "injury_type": {
+        "options": ["blunt", "penetrating"],
+        "labels": {
+            "blunt": "Тупая травма (blunt)",
+            "penetrating": "Проникающая травма (penetrating)",
+        },
+    },
+    "drug_name": {
+        "options": [
+            "acetaminophen", "ibuprofen", "amoxicillin", "amoxicillin_clavulanate",
+            "azithromycin", "ceftriaxone", "cefazolin", "propofol", "ketamine",
+            "fentanyl", "morphine", "rocuronium", "succinylcholine", "atropine",
+            "glycopyrrolate", "ondansetron", "dexamethasone", "epinephrine",
+            "adenosine", "amiodarone"
+        ],
+        "labels": {
+            "acetaminophen": "Парацетамол (Acetaminophen)",
+            "ibuprofen": "Ибупрофен (Ibuprofen)",
+            "amoxicillin": "Амоксициллин (Amoxicillin)",
+            "amoxicillin_clavulanate": "Амоксициллин/клавуланат",
+            "azithromycin": "Азитромицин (Azithromycin)",
+            "ceftriaxone": "Цефтриаксон (Ceftriaxone)",
+            "cefazolin": "Цефазолин (Cefazolin)",
+            "propofol": "Пропофол (Propofol)",
+            "ketamine": "Кетамин (Ketamine)",
+            "fentanyl": "Фентанил (Fentanyl)",
+            "morphine": "Морфин (Morphine)",
+            "rocuronium": "Рокуроний (Rocuronium)",
+            "succinylcholine": "Сукцинилхолин (Succinylcholine)",
+            "atropine": "Атропин (Atropine)",
+            "glycopyrrolate": "Гликопирролат (Glycopyrrolate)",
+            "ondansetron": "Ондансетрон (Ondansetron)",
+            "dexamethasone": "Дексаметазон (Dexamethasone)",
+            "epinephrine": "Адреналин / эпинефрин",
+            "adenosine": "Аденозин (Adenosine)",
+            "amiodarone": "Амиодарон (Amiodarone)",
+        },
+    },
+    "opioid_name": {
+        "options": [
+            "morphine_oral", "morphine_iv", "oxycodone_oral", "hydrocodone_oral",
+            "hydromorphone_oral", "hydromorphone_iv", "fentanyl_transdermal",
+            "fentanyl_iv", "methadone_oral", "codeine_oral", "tramadol_oral",
+            "buprenorphine_transdermal", "oxymorphone_oral", "meperidine_oral", "meperidine_iv"
+        ],
+        "labels": {
+            "morphine_oral": "Морфин (перорально)",
+            "morphine_iv": "Морфин (в/в)",
+            "oxycodone_oral": "Оксикодон (перорально)",
+            "hydrocodone_oral": "Гидрокодон (перорально)",
+            "hydromorphone_oral": "Гидроморфон (перорально)",
+            "hydromorphone_iv": "Гидроморфон (в/в)",
+            "fentanyl_transdermal": "Фентанил (пластырь ТТС)",
+            "fentanyl_iv": "Фентанил (в/в)",
+            "methadone_oral": "Метадон (перорально)",
+            "codeine_oral": "Кодеин (перорально)",
+            "tramadol_oral": "Трамадол (перорально)",
+            "buprenorphine_transdermal": "Бупренорфин (пластырь ТТС)",
+            "oxymorphone_oral": "Оксиморфон (перорально)",
+            "meperidine_oral": "Меперидин (перорально)",
+            "meperidine_iv": "Меперидин (в/в)",
+        },
+    },
+    "risk_region": {
+        "options": ["low", "moderate", "high", "very_high"],
+        "labels": {
+            "low": "Низкий риск (Low risk)",
+            "moderate": "Умеренный риск (Moderate risk)",
+            "high": "Высокий риск (High risk)",
+            "very_high": "Очень высокий риск (Very high risk)",
+        },
+    },
+    "secretions": {
+        "options": ["none_light", "moderate_heavy", "purulent"],
+        "labels": {
+            "none_light": "Нет или скудные (0 баллов)",
+            "moderate_heavy": "Умеренные или обильные негнойные (1 балл)",
+            "purulent": "Гнойная мокрота (2 балла)",
+        },
+    },
+    "chest_xray": {
+        "options": ["no_infiltrate", "diffuse", "localized"],
+        "labels": {
+            "no_infiltrate": "Без инфильтратов (0 баллов)",
+            "diffuse": "Диффузные инфильтраты (1 балл)",
+            "localized": "Локализованный инфильтрат (2 балла)",
+        },
+    },
+    "culture_growth": {
+        "options": ["none_light", "moderate_heavy"],
+        "labels": {
+            "none_light": "Рост отсутствует или скудный (0 баллов)",
+            "moderate_heavy": "Умеренный или обильный рост бактерий (1 балл)",
+        },
+    },
+    "age_group": {
+        "options": ["0-1m", "1-12m", "1-2y", "2-5y", "5-12y", "12-18y", "infant", "child"],
+        "labels": {
+            "0-1m": "0–1 месяц (новорожденные)",
+            "1-12m": "1–12 месяцев (младенцы)",
+            "1-2y": "1–2 года",
+            "2-5y": "2–5 лет",
+            "5-12y": "5–12 лет",
+            "12-18y": "12–18 лет (подростки)",
+            "infant": "Младенец (<1 года)",
+            "child": "Ребенок (≥1 года)",
+        },
+    },
+    "vasopressor_type": {
+        "options": ["none", "dopamine_low", "dopamine_high", "epinephrine", "norepinephrine"],
+        "labels": {
+            "none": "Без вазопрессоров (none)",
+            "dopamine_low": "Дофамин ≤ 5 мкг/кг/мин",
+            "dopamine_high": "Дофамин > 5 мкг/кг/мин",
+            "epinephrine": "Эпинефрин / адреналин",
+            "norepinephrine": "Норадреналин",
+        },
+    },
+    "pupillary_reaction": {
+        "options": ["both_react", "one_fixed", "both_fixed"],
+        "labels": {
+            "both_react": "Оба зрачка реагируют на свет",
+            "one_fixed": "Один зрачок фиксирован",
+            "both_fixed": "Оба зрачка фиксированы",
+        },
+    },
+    "burden_of_illness": {
+        "options": ["none_mild", "moderate", "severe"],
+        "labels": {
+            "none_mild": "Нет или легкая симптоматика (5 баллов)",
+            "moderate": "Умеренные симптомы (3 балла)",
+            "severe": "Тяжелое состояние (0 баллов)",
+        },
+    },
+    "consciousness": {
+        "options": ["alert", "cvpu"],
+        "labels": {
+            "alert": "Ясное сознание (Alert - A)",
+            "cvpu": "Нарушение сознания: реакция на голос/боль/без сознания (CVPU)",
+        },
+    },
+    "temperature_category": {
+        "options": ["normal", "hypothermia", "low_fever", "high_fever"],
+        "labels": {
+            "normal": "Нормальная температура (36.1–38.9°C)",
+            "hypothermia": "Гипотермия (≤36.0°C)",
+            "low_fever": "Субфебрилитет (39.0–39.9°C)",
+            "high_fever": "Высокая лихорадка (≥40.0°C)",
+        },
+    },
+    "mental_status": {
+        "options": ["alert", "disoriented", "stuporous", "comatose"],
+        "labels": {
+            "alert": "Ясное сознание (Alert)",
+            "disoriented": "Дезориентация (Disoriented)",
+            "stuporous": "Сопор (Stuporous)",
+            "comatose": "Кома (Comatose)",
+        },
+    },
+    "formula": {
+        "options": ["mosteller", "dubois", "haycock", "boyd", "katz", "hillier", "bazett", "fridericia", "framingham"],
+        "labels": {
+            "mosteller": "Формула Мостеллера (Mosteller)",
+            "dubois": "Формула Дюбуа (Du Bois)",
+            "haycock": "Формула Хейкока (Haycock)",
+            "boyd": "Формула Бойда (Boyd)",
+            "katz": "Формула Каца (Katz)",
+            "hillier": "Формула Хиллера (Hillier)",
+            "bazett": "Формула Базетта (Bazett)",
+            "fridericia": "Формула Фридериция (Fridericia)",
+            "framingham": "Формула Фрамингема (Framingham)",
+        },
+    },
+}
+
+BOOLEAN_PARAM_PREFIXES = (
+    "is_", "has_", "confusion", "sbp_lt_", "age_gte_", "chronic_", "active_",
+    "previous_", "critical_", "diabetes_", "recent_", "poor_mobility",
+    "extracardiac_arteriopathy", "ccs_class_4_angina", "surgery_on_thoracic_aorta",
+    "intubated", "hypotension", "mechanical_ventilation", "cardiac_arrest",
+    "smoking", "atrial_fibrillation", "antihypertensive", "history_high_glucose",
+    "physical_activity", "origin_nonblack"
+)
+
+BOOLEAN_PARAM_NAMES = {
+    "extracardiac_arteriopathy", "poor_mobility", "previous_cardiac_surgery",
+    "chronic_lung_disease", "active_endocarditis", "critical_preop_state",
+    "diabetes_on_insulin", "ccs_class_4_angina", "recent_mi", "surgery_on_thoracic_aorta",
+    "high_risk_surgery", "ischemic_heart_disease", "heart_failure",
+    "cerebrovascular_disease", "insulin_diabetes", "creatinine_above_2",
+    "hypertension", "diabetes", "stroke_tia", "vascular_disease", "is_emergency"
+}
+
+
+def get_smart_numeric_default(p_name: str, min_val: float, max_val: float) -> float:
+    p_lower = p_name.lower()
+    if "temperature" in p_lower:
+        return 36.6
+    if "age" in p_lower:
+        return 65.0 if min_val <= 65.0 <= max_val else max(min_val, 50.0)
+    if "heart_rate" in p_lower or "hr" == p_lower:
+        return 75.0
+    if "systolic_bp" in p_lower or "sbp" == p_lower:
+        return 120.0
+    if "diastolic_bp" in p_lower or "dbp" == p_lower:
+        return 80.0
+    if "map" in p_lower or "mean_arterial_pressure" in p_lower:
+        return 85.0
+    if "respiratory_rate" in p_lower or "rr" == p_lower:
+        return 16.0
+    if "spo2" in p_lower:
+        return 98.0
+    if "pao2" in p_lower:
+        return 95.0
+    if "paco2" in p_lower:
+        return 40.0
+    if "fio2" in p_lower:
+        return 0.21
+    if "sodium" in p_lower:
+        return 140.0
+    if "potassium" in p_lower:
+        return 4.0
+    if "creatinine" in p_lower:
+        return 1.0
+    if "bilirubin" in p_lower:
+        return 1.0
+    if "albumin" in p_lower:
+        return 4.0
+    if "platelets" in p_lower:
+        return 250.0
+    if "hemoglobin" in p_lower or "hgb" == p_lower:
+        return 14.0
+    if "hematocrit" in p_lower or "hct" == p_lower:
+        return 40.0
+    if "glucose" in p_lower:
+        return 100.0
+    if "bun" in p_lower:
+        return 15.0
+    if "inr" in p_lower:
+        return 1.0
+    if "gcs" in p_lower:
+        return 15.0
+    if "height" in p_lower:
+        return 175.0
+    if "weight" in p_lower:
+        return 70.0
+    if "iss" in p_lower:
+        return 15.0
+    if "kps" in p_lower:
+        return 80.0
+    if "pps" in p_lower:
+        return 80.0
+    if min_val <= 1.0 <= max_val:
+        return 1.0
+    return round((min_val + max_val) / 2.0, 1)
+
+
 def render_input(calculator_id: str, spec: dict):
     label = spec["label"]
     if spec.get("unit"):
@@ -446,36 +808,44 @@ else:
 
                 normal_range = p_info.get("normal_range")
 
-                # Распознаём пол
-                if p_name in ("gender", "sex"):
-                    gender_labels = {"male": "Мужской (male)", "female": "Женский (female)"}
+                p_lower = p_name.lower()
+
+                # 1. Распознаём категориальные / enum параметры
+                if p_name in PARAM_ENUM_SPECS:
+                    spec = PARAM_ENUM_SPECS[p_name]
+                    opts = spec["options"]
+                    labels = spec["labels"]
                     calc_args[p_name] = st.selectbox(
                         label,
-                        options=["male", "female"],
-                        format_func=lambda x: gender_labels.get(x, x),
+                        options=opts,
+                        format_func=lambda x: labels.get(x, str(x)),
                         help=help_text,
                         key=key,
                     )
-                # Распознаём бинарные / булевы флаги (0 или 1)
-                elif normal_range == [0, 1] or p_type == "boolean" or p_name.startswith(("is_", "has_", "confusion", "sbp_lt_", "age_gte_")):
+                # 2. Распознаём бинарные / булевы флаги (0 или 1)
+                elif (
+                    normal_range == [0, 1]
+                    or p_type == "boolean"
+                    or any(p_lower.startswith(pfx) for pfx in BOOLEAN_PARAM_PREFIXES)
+                    or p_lower in BOOLEAN_PARAM_NAMES
+                ):
                     checked = st.checkbox(label, value=False, help=help_text, key=key)
                     calc_args[p_name] = 1 if checked else 0
-                # Числовые поля
+                # 3. Числовые поля
                 else:
                     min_val = float(normal_range[0]) if normal_range and len(normal_range) >= 2 else 0.0
                     max_val = float(normal_range[1]) if normal_range and len(normal_range) >= 2 else 500.0
                     if max_val <= min_val:
                         max_val = min_val + 100.0
 
-                    default_val = min_val
-                    if "age" in p_name:
-                        default_val = 50.0
-                    elif "creatinine" in p_name:
-                        default_val = 1.0
-                    elif min_val <= 1.0 <= max_val:
-                        default_val = 1.0
+                    default_val = get_smart_numeric_default(p_name, min_val, max_val)
+                    if default_val < min_val:
+                        default_val = min_val
+                    elif default_val > max_val:
+                        default_val = max_val
 
-                    step_val = 1.0 if "age" in p_name or "year" in p_unit or "heart_rate" in p_name else 0.1
+                    is_int = p_type == "integer" or any(k in p_lower for k in ("age", "count", "score", "rate", "gcs", "points", "year"))
+                    step_val = 1.0 if is_int or "year" in p_unit else 0.1
                     calc_args[p_name] = st.number_input(
                         label,
                         min_value=min_val,
