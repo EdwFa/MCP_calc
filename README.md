@@ -63,7 +63,7 @@ flowchart TB
 
 ### 2. Сетевой MCP-сервер (152 клинических калькулятора)
 * **Транспорт:** `SSE` (Server-Sent Events) на `http://127.0.0.1:8000/sse`.
-* **Исходный код:** директория [servers/medical-calc-mcp/](servers/medical-calc-mcp/).
+* **Исходный код считалок калькуляторов:** директория [servers/medical-calc-mcp/](https://github.com/EdwFa/MCP_calc/blob/main/servers/medical-calc-mcp), форкнут с разрешения Copyright [2026] [Winning Health AI Research].
 * **Архитектура:** Domain-Driven Design (DDD Onion Architecture), FastMCP, модульная маршрутизация.
 * **Особенности:**
   - Охватывает кардиологию, реанимацию и ИТАР, нефрологию, хирургию, гепатологию, травматологию, педиатрию и акушерство.
