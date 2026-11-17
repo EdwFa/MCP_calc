@@ -432,19 +432,59 @@ py -3.12 -m venv .venv
 
 Любой MCP-клиент со stdio запускает тот же модуль. Команда и переменные общие: интерпретатор из `.venv`, аргумент `-m mcp_calc.server`, `PYTHONUTF8=1` и `PYTHONIOENCODING=utf-8`. Пакет уже установлен в этот интерпретатор, отдельный `PYTHONPATH` не нужен. `PYTHONUTF8` нужен, чтобы русские строки в JSON не зависели от кодировки консоли Windows. Если окружение лежит в другом месте, в команде меняется только путь к `python`.
 
-Для Cursor готовый файл уже есть: `.cursor/mcp.json`. После установки пакета включите сервер `medical-calculators` в настройках MCP. Модель чата увидит tools и сможет просить Cursor их вызывать. Файл на работу Streamlit не влияет: демо подключается своим клиентом в `client.py`.
+Для Cursor готовый файл конфигурации: `.cursor/mcp.json`. В нём настроены локальный сервер калькуляторов, внешний сервер баз данных `medical-mcp` и сетевой сервер на порту 8000 `medical-calc-mcp`:
 
 ```json
 {
   "mcpServers": {
     "medical-calculators": {
-      "command": "C:\\Users\\user\\PycharmProjects\\MCP_calc\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Innopol\\MCP_calc\\.venv\\Scripts\\python.exe",
       "args": ["-m", "mcp_calc.server"],
       "env": {
         "PYTHONUTF8": "1",
         "PYTHONIOENCODING": "utf-8"
       }
+    },
+    "medical-mcp": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\user\\AppData\\Roaming\\npm\\node_modules\\medical-mcp\\build\\index.js"
+      ],
+      "env": {
+        "PUPPETEER_SKIP_DOWNLOAD": "true"
+      }
+    },
+    "medical-calc-network": {
+      "url": "http://127.0.0.1:8000/sse"
     }
   }
 }
 ```
+
+## Сетевой MCP-сервер с 152 калькуляторами (`medical-calc-mcp`)
+
+В проект также интегрирован сервер [medical-calc-mcp](https://github.com/u9401066/medical-calc-mcp), работающий по протоколу SSE на сетевом порту `8000`.
+
+### Архитектура (DDD Onion + FastMCP)
+
+* **Domain Layer**: 152 калькулятора со ссылками на PubMed/DOI и строгой типизацией.
+* **Application Layer**: Use Cases для поиска (`discover`), получения схем (`get_tool_schema`) и универсального вычисления (`calculate`).
+* **Infrastructure Layer**: Транспорт `FastMCP` (поддерживает `stdio`, `sse`, `http`).
+
+### Запуск сетевого сервера
+
+Запуск сервера на локальном порту 8000:
+
+```powershell
+.\scripts\start_network_server.bat
+```
+
+или напрямую через Python:
+
+```powershell
+cd servers/medical-calc-mcp
+.\.venv\Scripts\python.exe -m src.main --mode sse --host 127.0.0.1 --port 8000
+```
+
+Эндпоинт SSE: `http://127.0.0.1:8000/sse`. В Streamlit доступно переключение между всеми тремя серверами в боковой панели.
+

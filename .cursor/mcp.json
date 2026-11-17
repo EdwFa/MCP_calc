@@ -1,12 +1,24 @@
 {
   "mcpServers": {
     "medical-calculators": {
-      "command": "C:\\Users\\user\\PycharmProjects\\MCP_calc\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Innopol\\MCP_calc\\.venv\\Scripts\\python.exe",
       "args": ["-m", "mcp_calc.server"],
       "env": {
         "PYTHONUTF8": "1",
         "PYTHONIOENCODING": "utf-8"
       }
+    },
+    "medical-mcp": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\user\\AppData\\Roaming\\npm\\node_modules\\medical-mcp\\build\\index.js"
+      ],
+      "env": {
+        "PUPPETEER_SKIP_DOWNLOAD": "true"
+      }
+    },
+    "medical-calc-network": {
+      "url": "http://127.0.0.1:8000/sse"
     }
   }
 }
