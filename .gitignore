@@ -31,6 +31,17 @@ scripts/generate_ru_catalog.py
 scripts/translate_calculators.py
 scripts/verify_search.py
 
+# Служебные скрипты разработки и бенчмарков сетевого сервера
+servers/medical-calc-mcp/scripts/
+
+# Примеры и вспомогательные файлы разработки (memory bank, mkdocs, openclaw)
+servers/medical-calc-mcp/memory-bank/
+servers/medical-calc-mcp/examples/
+servers/medical-calc-mcp/references/
+servers/medical-calc-mcp/nginx/
+servers/medical-calc-mcp/mkdocs.yml
+servers/medical-calc-mcp/openclaw.json
+
 # Служебные файлы CI/CD, линтеров, IDE и вспомогательные lock-файлы
 servers/medical-calc-mcp/.github/
 servers/medical-calc-mcp/.vscode/
