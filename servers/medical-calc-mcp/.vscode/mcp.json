@@ -1,9 +1,0 @@
-{
-  "servers": {
-    "medical-calc-mcp": {
-      "type": "stdio",
-      "command": "uv",
-      "args": ["run", "medical-calc-mcp"]
-    }
-  }
-}

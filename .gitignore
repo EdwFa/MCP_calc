@@ -1,7 +1,49 @@
+# Виртуальные окружения и сборка
 .venv/
+*/.venv/
 __pycache__/
-.pytest_cache/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
 *.egg-info/
-.streamlit/secrets.toml
 dist/
 build/
+*.pyc
+
+# Секреты и локальные настройки
+.streamlit/secrets.toml
+.env
+*.local
+
+# Тестирование и покрытие кода (не нужны для штатной работы)
+tests/
+servers/medical-calc-mcp/tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Датасеты бенчмарков и сценарии оценки агентов (не нужны для вычислений)
+servers/medical-calc-mcp/data/benchmarks/
+servers/medical-calc-mcp/data/agent_decision_bench/
+
+# Разовые служебные скрипты миграции и генерации
+scripts/generate_ru_catalog.py
+scripts/translate_calculators.py
+scripts/verify_search.py
+
+# Служебные файлы CI/CD, линтеров, IDE и вспомогательные lock-файлы
+servers/medical-calc-mcp/.github/
+servers/medical-calc-mcp/.vscode/
+servers/medical-calc-mcp/.pre-commit-config.yaml
+servers/medical-calc-mcp/.markdownlint.json
+servers/medical-calc-mcp/.copilotignore
+servers/medical-calc-mcp/.dockerignore
+servers/medical-calc-mcp/uv.lock
+
+# Внутренняя вспомогательная документация разработки сетевого сервера
+servers/medical-calc-mcp/docs/
+servers/medical-calc-mcp/docs_site/
+servers/medical-calc-mcp/ROADMAP.md
+servers/medical-calc-mcp/CHANGELOG.md
+servers/medical-calc-mcp/CONTRIBUTING.md
+servers/medical-calc-mcp/README.zh-TW.md
