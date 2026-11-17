@@ -58,3 +58,4 @@ servers/medical-calc-mcp/ROADMAP.md
 servers/medical-calc-mcp/CHANGELOG.md
 servers/medical-calc-mcp/CONTRIBUTING.md
 servers/medical-calc-mcp/README.zh-TW.md
+scripts/md_to_pdf.py
